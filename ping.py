@@ -20,31 +20,65 @@ class GameSprite(sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = player_x
         self.rect.y = player_y
+        
  
   # метод, отрисовывающий героя на окне
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
+
+# класс главного игрока
 class Player(GameSprite):
     # метод для управления спрайтом стрелками клавиатуры
-    def update(self):
+    def update_r(self):
         keys = key.get_pressed()
-        if keys[K_LEFT] and self.rect.x > 5:
-            self.rect.x -= self.speed
-        if keys[K_RIGHT] and self.rect.x < win_width - 80:
-            self.rect.x += self.speed
-            
+        if keys[K_UP] and self.rect.y > 5:
+            self.rect.y -= self.speed
+        if keys[K_DOWN] and self.rect.y < 400:
+            self.rect.y += self.speed
+
+    def update_l(self):
+        keys = key.get_pressed()
+        if keys[K_w] and self.rect.y > 5:
+            self.rect.y -= self.speed
+        if keys[K_s] and self.rect.y < 400:
+            self.rect.y += self.speed
+
+
+
+racket1 = Player("racket.png", 5, 100, 30, 100, 5)
+racket2 = Player("racket.png", 650, 100, 30, 100, 5)
+ball = Player("ball.png", 200, 200, 30, 30, 0)
+clock = time.Clock()
+fps = 60
 # переменная "игра закончилась": как только там True, в основном цикле перестают работать спрайты
 finish = False
+speed_x = 5
+speed_y = 5
 # Основной цикл игры:
 game = True # флаг сбрасывается кнопкой закрытия окна
 while game:
-    window.blit(background, (0,0))
-    # событие нажатия на кнопку Закрыть
     for e in event.get():
         if e.type == QUIT:
-            game = False 
+            game = False
 
+    if finish != True:
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+
+        if ball.rect.y > 470 or ball.rect.y < 0:
+           speed_y *= -1
+
+        if sprite.collide_rect(racket1, ball) or sprite.collide_rect(racket2, ball):
+           speed_x *= -1
+
+        window.blit(background, (0,0))
+        racket1.reset()
+        racket1.update_l()
+        racket2.reset()
+        racket2.update_r()
+        ball.reset()
+        # событие нажатия на кнопку Закрыть
 
         display.update()
     # цикл срабатывает каждую 0.05 секунд
-    time.delay(50) 
+    clock.tick(fps)
